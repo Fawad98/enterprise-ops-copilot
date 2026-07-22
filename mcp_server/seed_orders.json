@@ -1,0 +1,686 @@
+[
+  {
+    "order_id": "ORD-1001",
+    "customer_name": "Priya Ahmed",
+    "customer_email": "priya@example.com",
+    "status": "placed",
+    "order_date": "2026-06-14",
+    "delivery_date": null,
+    "items": [
+      {
+        "sku": "SKU-0005",
+        "category": "Electronics",
+        "qty": 3,
+        "unit_price": 119.53
+      },
+      {
+        "sku": "SKU-0004",
+        "category": "Grocery",
+        "qty": 3,
+        "unit_price": 10.94
+      }
+    ],
+    "total": 391.41,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1002",
+    "customer_name": "Tom Park",
+    "customer_email": "tom@example.com",
+    "status": "delivered",
+    "order_date": "2026-06-04",
+    "delivery_date": "2026-06-08",
+    "items": [
+      {
+        "sku": "SKU-0036",
+        "category": "Electronics",
+        "qty": 2,
+        "unit_price": 104.83
+      }
+    ],
+    "total": 209.66,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1003",
+    "customer_name": "Bilal Nasser",
+    "customer_email": "bilal@example.com",
+    "status": "shipped",
+    "order_date": "2026-06-02",
+    "delivery_date": null,
+    "items": [
+      {
+        "sku": "SKU-0038",
+        "category": "Grocery",
+        "qty": 2,
+        "unit_price": 4.83
+      }
+    ],
+    "total": 9.66,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1004",
+    "customer_name": "Amara Ahmed",
+    "customer_email": "amara@example.com",
+    "status": "delivered",
+    "order_date": "2026-06-19",
+    "delivery_date": "2026-06-21",
+    "items": [
+      {
+        "sku": "SKU-0010",
+        "category": "Toys",
+        "qty": 3,
+        "unit_price": 21.19
+      },
+      {
+        "sku": "SKU-0036",
+        "category": "Apparel",
+        "qty": 3,
+        "unit_price": 35.3
+      }
+    ],
+    "total": 169.47,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1005",
+    "customer_name": "Raj Ito",
+    "customer_email": "raj@example.com",
+    "status": "delivered",
+    "order_date": "2026-06-07",
+    "delivery_date": "2026-06-16",
+    "items": [
+      {
+        "sku": "SKU-0046",
+        "category": "Grocery",
+        "qty": 1,
+        "unit_price": 23.88
+      }
+    ],
+    "total": 23.88,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1006",
+    "customer_name": "Sara Sato",
+    "customer_email": "sara@example.com",
+    "status": "damaged",
+    "order_date": "2026-06-25",
+    "delivery_date": "2026-06-08",
+    "items": [
+      {
+        "sku": "SKU-0030",
+        "category": "Apparel",
+        "qty": 3,
+        "unit_price": 139.28
+      },
+      {
+        "sku": "SKU-0020",
+        "category": "Apparel",
+        "qty": 1,
+        "unit_price": 121.21
+      }
+    ],
+    "total": 539.05,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1007",
+    "customer_name": "Noor Nasser",
+    "customer_email": "noor@example.com",
+    "status": "delivered",
+    "order_date": "2026-06-06",
+    "delivery_date": "2026-06-25",
+    "items": [
+      {
+        "sku": "SKU-0032",
+        "category": "Grocery",
+        "qty": 2,
+        "unit_price": 29.99
+      },
+      {
+        "sku": "SKU-0039",
+        "category": "Apparel",
+        "qty": 1,
+        "unit_price": 26.53
+      }
+    ],
+    "total": 86.51,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1008",
+    "customer_name": "Priya Ahmed",
+    "customer_email": "priya@example.com",
+    "status": "delivered",
+    "order_date": "2026-06-20",
+    "delivery_date": "2026-06-16",
+    "items": [
+      {
+        "sku": "SKU-0003",
+        "category": "Toys",
+        "qty": 3,
+        "unit_price": 16.69
+      },
+      {
+        "sku": "SKU-0037",
+        "category": "Grocery",
+        "qty": 2,
+        "unit_price": 15.58
+      }
+    ],
+    "total": 81.23,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1009",
+    "customer_name": "Finn Brar",
+    "customer_email": "finn@example.com",
+    "status": "placed",
+    "order_date": "2026-06-02",
+    "delivery_date": null,
+    "items": [
+      {
+        "sku": "SKU-0018",
+        "category": "Electronics",
+        "qty": 2,
+        "unit_price": 372.76
+      }
+    ],
+    "total": 745.52,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1010",
+    "customer_name": "Lena Diaz",
+    "customer_email": "lena@example.com",
+    "status": "delivered",
+    "order_date": "2026-06-02",
+    "delivery_date": "2026-06-07",
+    "items": [
+      {
+        "sku": "SKU-0044",
+        "category": "Grocery",
+        "qty": 2,
+        "unit_price": 13.53
+      },
+      {
+        "sku": "SKU-0043",
+        "category": "Toys",
+        "qty": 2,
+        "unit_price": 10.53
+      },
+      {
+        "sku": "SKU-0023",
+        "category": "Toys",
+        "qty": 1,
+        "unit_price": 76.42
+      }
+    ],
+    "total": 124.54,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1011",
+    "customer_name": "Jonas Diaz",
+    "customer_email": "jonas@example.com",
+    "status": "delivered",
+    "order_date": "2026-06-03",
+    "delivery_date": "2026-06-06",
+    "items": [
+      {
+        "sku": "SKU-0026",
+        "category": "Home",
+        "qty": 2,
+        "unit_price": 184.61
+      }
+    ],
+    "total": 369.22,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1012",
+    "customer_name": "Ava Khan",
+    "customer_email": "ava@example.com",
+    "status": "delivered",
+    "order_date": "2026-06-08",
+    "delivery_date": "2026-06-20",
+    "items": [
+      {
+        "sku": "SKU-0007",
+        "category": "Electronics",
+        "qty": 1,
+        "unit_price": 349.99
+      }
+    ],
+    "total": 349.99,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1013",
+    "customer_name": "Sara Novak",
+    "customer_email": "sara@example.com",
+    "status": "placed",
+    "order_date": "2026-06-05",
+    "delivery_date": null,
+    "items": [
+      {
+        "sku": "SKU-0038",
+        "category": "Toys",
+        "qty": 1,
+        "unit_price": 37.43
+      }
+    ],
+    "total": 37.43,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1014",
+    "customer_name": "Tom Sato",
+    "customer_email": "tom@example.com",
+    "status": "placed",
+    "order_date": "2026-06-15",
+    "delivery_date": null,
+    "items": [
+      {
+        "sku": "SKU-0037",
+        "category": "Grocery",
+        "qty": 2,
+        "unit_price": 38.26
+      },
+      {
+        "sku": "SKU-0040",
+        "category": "Grocery",
+        "qty": 3,
+        "unit_price": 28.02
+      }
+    ],
+    "total": 160.58,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1015",
+    "customer_name": "Ali Sato",
+    "customer_email": "ali@example.com",
+    "status": "shipped",
+    "order_date": "2026-06-15",
+    "delivery_date": null,
+    "items": [
+      {
+        "sku": "SKU-0026",
+        "category": "Toys",
+        "qty": 2,
+        "unit_price": 19.6
+      },
+      {
+        "sku": "SKU-0004",
+        "category": "Toys",
+        "qty": 1,
+        "unit_price": 15.54
+      }
+    ],
+    "total": 54.74,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1016",
+    "customer_name": "Mia Reyes",
+    "customer_email": "mia@example.com",
+    "status": "delivered",
+    "order_date": "2026-06-01",
+    "delivery_date": "2026-06-03",
+    "items": [
+      {
+        "sku": "SKU-0004",
+        "category": "Grocery",
+        "qty": 1,
+        "unit_price": 3.01
+      },
+      {
+        "sku": "SKU-0035",
+        "category": "Home",
+        "qty": 1,
+        "unit_price": 190.56
+      }
+    ],
+    "total": 193.57,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1017",
+    "customer_name": "Tara Patel",
+    "customer_email": "tara@example.com",
+    "status": "delivered",
+    "order_date": "2026-06-03",
+    "delivery_date": "2026-06-05",
+    "items": [
+      {
+        "sku": "SKU-0010",
+        "category": "Toys",
+        "qty": 3,
+        "unit_price": 36.25
+      },
+      {
+        "sku": "SKU-0039",
+        "category": "Apparel",
+        "qty": 2,
+        "unit_price": 76.38
+      },
+      {
+        "sku": "SKU-0032",
+        "category": "Electronics",
+        "qty": 2,
+        "unit_price": 281.77
+      }
+    ],
+    "total": 825.05,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1018",
+    "customer_name": "Zoe Roy",
+    "customer_email": "zoe@example.com",
+    "status": "damaged",
+    "order_date": "2026-06-28",
+    "delivery_date": "2026-06-03",
+    "items": [
+      {
+        "sku": "SKU-0031",
+        "category": "Apparel",
+        "qty": 3,
+        "unit_price": 32.6
+      },
+      {
+        "sku": "SKU-0014",
+        "category": "Electronics",
+        "qty": 3,
+        "unit_price": 231.94
+      },
+      {
+        "sku": "SKU-0002",
+        "category": "Grocery",
+        "qty": 3,
+        "unit_price": 14.03
+      }
+    ],
+    "total": 835.71,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1019",
+    "customer_name": "Marco Chen",
+    "customer_email": "marco@example.com",
+    "status": "refunded",
+    "order_date": "2026-06-13",
+    "delivery_date": "2026-06-24",
+    "items": [
+      {
+        "sku": "SKU-0011",
+        "category": "Apparel",
+        "qty": 2,
+        "unit_price": 118.07
+      },
+      {
+        "sku": "SKU-0035",
+        "category": "Grocery",
+        "qty": 3,
+        "unit_price": 15.2
+      },
+      {
+        "sku": "SKU-0040",
+        "category": "Home",
+        "qty": 1,
+        "unit_price": 164.12
+      }
+    ],
+    "total": 445.86,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1020",
+    "customer_name": "Rania Novak",
+    "customer_email": "rania@example.com",
+    "status": "placed",
+    "order_date": "2026-06-26",
+    "delivery_date": null,
+    "items": [
+      {
+        "sku": "SKU-0032",
+        "category": "Grocery",
+        "qty": 2,
+        "unit_price": 30.05
+      }
+    ],
+    "total": 60.1,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1021",
+    "customer_name": "Sam Costa",
+    "customer_email": "sam@example.com",
+    "status": "delivered",
+    "order_date": "2026-06-03",
+    "delivery_date": "2026-06-08",
+    "items": [
+      {
+        "sku": "SKU-0045",
+        "category": "Home",
+        "qty": 3,
+        "unit_price": 191.96
+      },
+      {
+        "sku": "SKU-0047",
+        "category": "Toys",
+        "qty": 2,
+        "unit_price": 114.96
+      }
+    ],
+    "total": 805.8,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1022",
+    "customer_name": "Zoe Novak",
+    "customer_email": "zoe@example.com",
+    "status": "delivered",
+    "order_date": "2026-06-26",
+    "delivery_date": "2026-06-21",
+    "items": [
+      {
+        "sku": "SKU-0022",
+        "category": "Home",
+        "qty": 1,
+        "unit_price": 104.29
+      },
+      {
+        "sku": "SKU-0001",
+        "category": "Grocery",
+        "qty": 2,
+        "unit_price": 36.64
+      }
+    ],
+    "total": 177.57,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1023",
+    "customer_name": "Noor Reyes",
+    "customer_email": "noor@example.com",
+    "status": "delivered",
+    "order_date": "2026-06-24",
+    "delivery_date": "2026-06-03",
+    "items": [
+      {
+        "sku": "SKU-0031",
+        "category": "Home",
+        "qty": 1,
+        "unit_price": 95.28
+      },
+      {
+        "sku": "SKU-0006",
+        "category": "Apparel",
+        "qty": 3,
+        "unit_price": 65.42
+      }
+    ],
+    "total": 291.54,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1024",
+    "customer_name": "Lena Lopez",
+    "customer_email": "lena@example.com",
+    "status": "delivered",
+    "order_date": "2026-06-26",
+    "delivery_date": "2026-06-21",
+    "items": [
+      {
+        "sku": "SKU-0002",
+        "category": "Home",
+        "qty": 1,
+        "unit_price": 124.3
+      }
+    ],
+    "total": 124.3,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1025",
+    "customer_name": "Omar Ford",
+    "customer_email": "omar@example.com",
+    "status": "delivered",
+    "order_date": "2026-06-28",
+    "delivery_date": "2026-06-07",
+    "items": [
+      {
+        "sku": "SKU-0043",
+        "category": "Toys",
+        "qty": 2,
+        "unit_price": 25.46
+      },
+      {
+        "sku": "SKU-0009",
+        "category": "Grocery",
+        "qty": 1,
+        "unit_price": 3.53
+      },
+      {
+        "sku": "SKU-0034",
+        "category": "Electronics",
+        "qty": 3,
+        "unit_price": 472.12
+      }
+    ],
+    "total": 1470.81,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1026",
+    "customer_name": "Ken Patel",
+    "customer_email": "ken@example.com",
+    "status": "refunded",
+    "order_date": "2026-06-19",
+    "delivery_date": "2026-06-11",
+    "items": [
+      {
+        "sku": "SKU-0014",
+        "category": "Apparel",
+        "qty": 2,
+        "unit_price": 80.16
+      }
+    ],
+    "total": 160.32,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1027",
+    "customer_name": "Sam Sato",
+    "customer_email": "sam@example.com",
+    "status": "delivered",
+    "order_date": "2026-06-14",
+    "delivery_date": "2026-06-27",
+    "items": [
+      {
+        "sku": "SKU-0004",
+        "category": "Home",
+        "qty": 3,
+        "unit_price": 80.45
+      },
+      {
+        "sku": "SKU-0043",
+        "category": "Toys",
+        "qty": 3,
+        "unit_price": 99.29
+      }
+    ],
+    "total": 539.22,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1028",
+    "customer_name": "Grace Meyer",
+    "customer_email": "grace@example.com",
+    "status": "refunded",
+    "order_date": "2026-06-15",
+    "delivery_date": "2026-06-25",
+    "items": [
+      {
+        "sku": "SKU-0010",
+        "category": "Grocery",
+        "qty": 3,
+        "unit_price": 21.89
+      }
+    ],
+    "total": 65.67,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1029",
+    "customer_name": "Mia Ford",
+    "customer_email": "mia@example.com",
+    "status": "damaged",
+    "order_date": "2026-06-04",
+    "delivery_date": "2026-06-18",
+    "items": [
+      {
+        "sku": "SKU-0012",
+        "category": "Home",
+        "qty": 1,
+        "unit_price": 102.6
+      }
+    ],
+    "total": 102.6,
+    "replacement_for": null
+  },
+  {
+    "order_id": "ORD-1030",
+    "customer_name": "Liam Roy",
+    "customer_email": "liam@example.com",
+    "status": "delivered",
+    "order_date": "2026-06-01",
+    "delivery_date": "2026-06-25",
+    "items": [
+      {
+        "sku": "SKU-0034",
+        "category": "Grocery",
+        "qty": 3,
+        "unit_price": 20.85
+      },
+      {
+        "sku": "SKU-0036",
+        "category": "Electronics",
+        "qty": 1,
+        "unit_price": 184.37
+      },
+      {
+        "sku": "SKU-0003",
+        "category": "Apparel",
+        "qty": 1,
+        "unit_price": 81.08
+      }
+    ],
+    "total": 328.0,
+    "replacement_for": null
+  }
+]
