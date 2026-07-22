@@ -1,0 +1,19 @@
+[project]
+name = "enterprise-ops-copilot"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+  "azure-ai-projects>=2.3.0",        # Foundry SDK — 2.x targets the NEW Foundry API (1.x = classic, incompatible)
+  "azure-identity",
+  "agent-framework",                  # Microsoft Agent Framework (verify current package name on PyPI)
+  "azure-ai-agentserver-responses",   # hosted-agent Responses protocol server library
+  "azure-search-documents>=11.5",
+  "openai>=1.50",
+  "azure-monitor-opentelemetry",
+  "azure-ai-evaluation",
+  "python-dotenv",
+  "pandas",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff", "streamlit"]
