@@ -1,0 +1,30 @@
+# Local envs
+.venv/
+.venv-1/
+__pycache__/
+*.pyc
+*.egg-info/
+
+# Repo tooling / VCS
+.git/
+.github/
+.devcontainer/
+
+# Reference clone - do NOT ship (~50MB)
+_sample_ref/
+
+# Not needed by the hosted agent
+mcp_server/
+evals/
+scripts/
+docs/
+infra/
+demo/
+tests/
+
+# Policies are already indexed in Azure AI Search; the container only needs sales.csv
+data/policies/
+
+# Secrets - values are injected via azure.yaml environmentVariables
+.env
+.env.example

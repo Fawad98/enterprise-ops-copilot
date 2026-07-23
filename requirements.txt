@@ -1,0 +1,21 @@
+# Hosted agent runtime
+agent-framework-foundry
+agent-framework-foundry-hosting>=1.0.0b260722
+agent-framework-core>=1.12.0
+agent-framework-openai>=1.11.0
+
+# Azure
+azure-identity
+azure-search-documents>=11.5
+azure-ai-projects>=2.3.0
+
+# Model / protocol clients
+openai>=2.25.0
+mcp>=1.24.0
+
+# Analytics agent
+pandas
+numpy
+
+# Config
+python-dotenv
