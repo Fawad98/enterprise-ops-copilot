@@ -35,7 +35,6 @@ jobs:
 
       - name: Unit tests
         run: PYTHONPATH=. pytest tests/ -q
-        continue-on-error: true   # no unit tests yet; remove once tests/ is populated
 
   eval-gate:
     name: Eval gate
