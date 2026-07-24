@@ -5,7 +5,9 @@
   PYTHONPATH=. python scripts/demo_memory.py check   # just list what's stored
   PYTHONPATH=. python scripts/demo_memory.py clear   # wipe this user's memories
 """
-import sys, os, asyncio
+import sys
+import os
+import asyncio
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dotenv import load_dotenv

@@ -103,7 +103,7 @@ def order_snapshot() -> dict:
         try:
             with urllib.request.urlopen(req, timeout=60) as r:
                 body = r.read().decode()
-            line = next(l for l in body.splitlines() if l.startswith("data:"))
+            line = next(ln for ln in body.splitlines() if ln.startswith("data:"))
             data = json.loads(line[len("data:"):].strip())
             text = data["result"]["content"][0]["text"]
             parsed = json.loads(text)

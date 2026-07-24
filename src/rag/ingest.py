@@ -1,38 +1,51 @@
-"""Chunk policy docs, embed, and push to Azure AI Search (hybrid index)."""
-import os, glob, hashlib
-from dotenv import load_dotenv
-from azure.identity import DefaultAzureCredential
-from azure.search.documents.indexes import SearchIndexClient
+"""Chunk policy docs, embed, and push to Azure AI Search (hybrid index).
+
+Note on endpoints: embeddings route to the ACCOUNT (base) endpoint, not the
+/api/projects/... project endpoint. Using the project endpoint returns HTTP 404
+on /embeddings. Chat and embeddings also need different API versions - see
+docs/challenges-and-solutions.md entries 3 and 7.
+"""
+import glob
+import hashlib
+import os
+
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from azure.search.documents import SearchClient
+from azure.search.documents.indexes import SearchIndexClient
 from azure.search.documents.indexes.models import (
-    SearchIndex, SearchField, SearchFieldDataType, SimpleField, SearchableField,
-    VectorSearch, HnswAlgorithmConfiguration, VectorSearchProfile,
-    SemanticConfiguration, SemanticPrioritizedFields, SemanticField, SemanticSearch,
+    HnswAlgorithmConfiguration,
+    SearchableField,
+    SearchField,
+    SearchFieldDataType,
+    SearchIndex,
+    SemanticConfiguration,
+    SemanticField,
+    SemanticPrioritizedFields,
+    SemanticSearch,
+    SimpleField,
+    VectorSearch,
+    VectorSearchProfile,
 )
-from azure.ai.projects import AIProjectClient
+from dotenv import load_dotenv
+from openai import AzureOpenAI
 
 load_dotenv()
+
 ENDPOINT = os.environ["AZURE_SEARCH_ENDPOINT"]
 INDEX = os.environ["AZURE_SEARCH_INDEX"]
 EMBED_DEPLOYMENT = os.environ.get("AZURE_EMBED_DEPLOYMENT_NAME", "embed")
 CRED = DefaultAzureCredential()
 
-# --- Azure OpenAI client for embeddings ---
-# IMPORTANT: embeddings route to the ACCOUNT (base) endpoint, NOT the /api/projects/... project endpoint.
-# Using the project endpoint here returns HTTP 404 on /embeddings. Use AzureOpenAI with an explicit
-# api_version (this is the pattern verified to work; get_openai_client() routing has been unreliable).
-from openai import AzureOpenAI
-from azure.identity import get_bearer_token_provider
-
 _token_provider = get_bearer_token_provider(CRED, "https://cognitiveservices.azure.com/.default")
 openai_client = AzureOpenAI(
-    azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],   # https://<account>.cognitiveservices.azure.com/
+    azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
     azure_ad_token_provider=_token_provider,
     api_version="2024-10-21",
 )
 
-def chunk(text: str, target=800, overlap=150):
-    """Paragraph-aware chunking with overlap. Simple > clever; explain trade-offs in your ADR."""
+
+def chunk(text: str, target: int = 800, overlap: int = 150) -> list[str]:
+    """Paragraph-aware chunking with overlap. Simple beats clever here - see ADR 001."""
     paras, chunks, buf = text.split("\n\n"), [], ""
     for p in paras:
         if len(buf) + len(p) > target and buf:
@@ -44,11 +57,13 @@ def chunk(text: str, target=800, overlap=150):
         chunks.append(buf.strip())
     return chunks
 
+
 def embed(texts: list[str]) -> list[list[float]]:
     resp = openai_client.embeddings.create(model=EMBED_DEPLOYMENT, input=texts)
     return [d.embedding for d in resp.data]
 
-def create_index():
+
+def create_index() -> None:
     fields = [
         SimpleField(name="id", type=SearchFieldDataType.String, key=True),
         SearchableField(name="content", type=SearchFieldDataType.String),
@@ -67,20 +82,23 @@ def create_index():
     SearchIndexClient(ENDPOINT, CRED).create_or_update_index(
         SearchIndex(name=INDEX, fields=fields, vector_search=vs, semantic_search=sem))
 
-def run():
+
+def run() -> None:
     create_index()
     sc = SearchClient(ENDPOINT, INDEX, CRED)
     docs = []
     for path in glob.glob("data/policies/*.md"):
-        text = open(path, encoding="utf-8").read()
+        with open(path, encoding="utf-8") as f:
+            text = f.read()
         for i, ch in enumerate(chunk(text)):
             docs.append({"id": hashlib.md5(f"{path}-{i}".encode()).hexdigest(),
                          "content": ch, "source": os.path.basename(path)})
     vectors = embed([d["content"] for d in docs])
-    for d, v in zip(docs, vectors):
+    for d, v in zip(docs, vectors, strict=True):
         d["vector"] = v
     sc.upload_documents(docs)
     print(f"Indexed {len(docs)} chunks into '{INDEX}'")
+
 
 if __name__ == "__main__":
     run()

@@ -66,7 +66,20 @@ class OrderStore:
 
         self._next_order += 1
         new_id = f"ORD-{self._next_order}"
-        ...
+        replacement = {
+            "order_id": new_id,
+            "customer_name": original["customer_name"],
+            "customer_email": original["customer_email"],
+            "status": "placed",
+            "order_date": str(date.today()),
+            "delivery_date": None,
+            "items": original["items"],
+            "total": 0.0,                      # no cost to customer
+            "replacement_for": order_id,
+            "reason": reason,
+        }
+        self._orders[new_id] = replacement
+        return replacement
 
     def create_ticket(self, order_id: str, summary: str, priority: str = "normal"):
         self._next_ticket += 1
