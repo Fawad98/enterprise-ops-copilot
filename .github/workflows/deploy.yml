@@ -11,11 +11,16 @@ permissions:
   id-token: write
   contents: read
 
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
+
 jobs:
   deploy:
     name: Deploy hosted agent
     runs-on: ubuntu-latest
     environment: dev
+    timeout-minutes: 20
     # Only deploy if CI (including the eval gate) succeeded.
     if: >-
       github.event_name == 'workflow_dispatch' ||
@@ -25,6 +30,14 @@ jobs:
 
       - name: Install azd
         uses: Azure/setup-azd@v2
+
+      # azd will not auto-install extensions in CI. The hosted-agent host
+      # ('azure.ai.agent') comes from the Foundry extension.
+      - name: Install azd extensions
+        run: |
+          azd extension install microsoft.foundry || true
+          azd extension install azure.ai.agents || true
+          azd extension list
 
       - name: Azure login (OIDC)
         uses: azure/login@v2
@@ -60,7 +73,7 @@ jobs:
 
       # `azd deploy`, not `azd up` - the manifest has no `infra:` block, so this
       # targets the existing Foundry project rather than provisioning a new one.
-      # See ADR notes / challenges-and-solutions.md entry 18.
+      # See docs/challenges-and-solutions.md entry 18.
       - name: Deploy
         run: azd deploy --no-prompt
 
