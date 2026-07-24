@@ -1,0 +1,68 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy hosted agent
+    runs-on: ubuntu-latest
+    environment: dev
+    # Only deploy if CI (including the eval gate) succeeded.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install azd
+        uses: Azure/setup-azd@v2
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: azd login (federated)
+        run: |
+          azd auth login \
+            --client-id "${{ vars.AZURE_CLIENT_ID }}" \
+            --federated-credential-provider "github" \
+            --tenant-id "${{ vars.AZURE_TENANT_ID }}"
+
+      - name: Configure azd environment
+        env:
+          AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
+        run: |
+          azd env new "$AZURE_ENV_NAME" --no-prompt || azd env select "$AZURE_ENV_NAME"
+          azd env set AZURE_SUBSCRIPTION_ID          "${{ vars.AZURE_SUBSCRIPTION_ID }}"
+          azd env set AZURE_LOCATION                 "${{ vars.AZURE_LOCATION }}"
+          azd env set AZURE_RESOURCE_GROUP           "${{ vars.AZURE_RESOURCE_GROUP }}"
+          azd env set AZURE_AI_PROJECT_ID            "${{ vars.AZURE_AI_PROJECT_ID }}"
+          azd env set FOUNDRY_PROJECT_ENDPOINT       "${{ vars.FOUNDRY_PROJECT_ENDPOINT }}"
+          azd env set AZURE_OPENAI_ENDPOINT          "${{ vars.AZURE_OPENAI_ENDPOINT }}"
+          azd env set AZURE_AI_MODEL_DEPLOYMENT_NAME "${{ vars.AZURE_AI_MODEL_DEPLOYMENT_NAME }}"
+          azd env set AZURE_EMBED_DEPLOYMENT_NAME    "${{ vars.AZURE_EMBED_DEPLOYMENT_NAME }}"
+          azd env set AZURE_SEARCH_ENDPOINT          "${{ vars.AZURE_SEARCH_ENDPOINT }}"
+          azd env set AZURE_SEARCH_INDEX             "${{ vars.AZURE_SEARCH_INDEX }}"
+          azd env set MCP_SERVER_URL                 "${{ vars.MCP_SERVER_URL }}"
+          azd env set MCP_EXTENSION_KEY              "${{ secrets.MCP_EXTENSION_KEY }}"
+
+      # `azd deploy`, not `azd up` - the manifest has no `infra:` block, so this
+      # targets the existing Foundry project rather than provisioning a new one.
+      # See ADR notes / challenges-and-solutions.md entry 18.
+      - name: Deploy
+        run: azd deploy --no-prompt
+
+      - name: Show deployed agent
+        run: azd ai agent show zavaops-supervisor || true
