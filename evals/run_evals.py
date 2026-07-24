@@ -341,4 +341,9 @@ async def main():
     print("\nEVAL GATE PASSED" if not failures else "\n(gate suppressed)")
 
 
-asyncio.run(main())
+try:
+    asyncio.run(main())
+except RuntimeError as e:
+    # Cosmetic MCP transport teardown issue - fires after results are written.
+    if "cancel scope" not in str(e):
+        raise
