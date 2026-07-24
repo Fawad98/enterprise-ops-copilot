@@ -13,10 +13,17 @@ permissions:
   contents: read
   pull-requests: write
 
+# The eval suite mutates shared state on the MCP server, so concurrent runs
+# corrupt each other's red-team results. Newer runs supersede older ones.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   quality:
     name: Lint & unit tests
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -41,6 +48,7 @@ jobs:
     needs: quality
     runs-on: ubuntu-latest
     environment: dev
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
@@ -61,6 +69,17 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
+      # The MCP server holds orders in memory. Restarting resets it so the
+      # red-team suite runs against a known baseline - see redteam-report.md
+      # "Methodology limitation: no clean baseline".
+      - name: Reset MCP server state
+        run: |
+          az functionapp restart \
+            --name func-zavaops-mcp-dev-01 \
+            --resource-group "${{ vars.AZURE_RESOURCE_GROUP }}"
+          echo "waiting for cold start..."
+          sleep 90
+
       - name: Run eval suite
         env:
           FOUNDRY_PROJECT_ENDPOINT: ${{ vars.FOUNDRY_PROJECT_ENDPOINT }}
@@ -71,7 +90,8 @@ jobs:
           AZURE_SEARCH_INDEX: ${{ vars.AZURE_SEARCH_INDEX }}
           MCP_SERVER_URL: ${{ vars.MCP_SERVER_URL }}
           MCP_EXTENSION_KEY: ${{ secrets.MCP_EXTENSION_KEY }}
-        run: PYTHONPATH=. python evals/run_evals.py
+        # -u forces unbuffered output so progress is visible in the live log.
+        run: PYTHONPATH=. python -u evals/run_evals.py
 
       - name: Upload eval report
         if: always()
