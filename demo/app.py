@@ -1,8 +1,8 @@
 """ZavaOps demo UI.
 
-Chats with the deployed hosted agent through the Foundry Responses endpoint, and surfaces
-what a normal chat window hides: which specialists were called, how long each turn took,
-and how many tokens it cost.
+Chats with the deployed hosted agent through its Responses endpoint, and surfaces what a
+normal chat window hides: which specialists were called, how long each turn took, and how
+many tokens it cost.
 
 Run:  python -m streamlit run demo/app.py
 """
@@ -13,9 +13,9 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import streamlit as st
-from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
 from dotenv import load_dotenv
+from openai import OpenAI
 
 load_dotenv()
 
@@ -33,20 +33,26 @@ SAMPLES = {
     "Out of scope": "What's the weather in Karachi?",
 }
 
-st.set_page_config(page_title="ZavaOps Copilot", page_icon="🛠️", layout="wide")
+st.set_page_config(page_title="ZavaOps Copilot", page_icon="tools", layout="wide")
 
 
 @st.cache_resource
 def get_client():
-    project = AIProjectClient(
-        os.environ["FOUNDRY_PROJECT_ENDPOINT"],
-        DefaultAzureCredential(),
+    """OpenAI-compatible client pointed at the hosted agent's own endpoint.
+
+    NOT the model-inference endpoint: AIProjectClient.get_openai_client() resolves
+    model deployments, so passing an agent name there returns DeploymentNotFound.
+    """
+    token = DefaultAzureCredential().get_token("https://ai.azure.com/.default").token
+    base = os.environ["FOUNDRY_PROJECT_ENDPOINT"].rstrip("/")
+    return OpenAI(
+        base_url=f"{base}/agents/{AGENT_NAME}/endpoint/protocols/openai",
+        api_key=token,
+        default_query={"api-version": "v1"},
     )
-    return project.get_openai_client()
 
 
 def specialists_used(response) -> list[str]:
-    """Pull specialist names out of the Responses payload."""
     known = {"docs_agent", "analytics_agent", "action_agent"}
     found = []
     for item in getattr(response, "output", []) or []:
@@ -62,18 +68,16 @@ def specialists_used(response) -> list[str]:
     return found
 
 
-# ----------------------------------------------------------------- sidebar
-
 with st.sidebar:
-    st.title("🛠️ ZavaOps")
+    st.title("ZavaOps")
     st.caption("Multi-agent operations copilot on Microsoft Foundry")
 
     st.markdown("### Architecture")
     st.markdown(
         "**Supervisor** routes to three specialists:\n\n"
-        "- 📄 **docs_agent** — policy RAG over Azure AI Search\n"
-        "- 📊 **analytics_agent** — pandas over 39.5k sales rows\n"
-        "- ⚙️ **action_agent** — order ops via a custom MCP server"
+        "- **docs_agent** - policy RAG over Azure AI Search\n"
+        "- **analytics_agent** - pandas over 39.5k sales rows\n"
+        "- **action_agent** - order ops via a custom MCP server"
     )
 
     st.markdown("### Try these")
@@ -95,17 +99,12 @@ with st.sidebar:
             st.session_state.pop(k, None)
         st.rerun()
 
-    st.caption(
-        "Evals: routing 95.5% · RAG 100% · red-team 18/18 · no-mutation 100%  \n"
-        "See `docs/redteam-report.md`."
-    )
-
-# ----------------------------------------------------------------- main
+    st.caption("Evals: routing 100% - RAG 100% - red-team 18/18 - no-mutation 100%")
 
 st.title("ZavaOps Operations Copilot")
 st.caption(
-    "Ask about company policy, sales data, or orders. The agent decides which specialist to use — "
-    "and refuses what it shouldn't do."
+    "Ask about company policy, sales data, or orders. The agent decides which specialist "
+    "to use - and refuses what it shouldn't do."
 )
 
 st.session_state.setdefault("history", [])
@@ -119,14 +118,14 @@ for msg in st.session_state.history:
             m = msg["meta"]
             bits = []
             if m.get("specialists"):
-                bits.append(" → ".join(f"`{s}`" for s in m["specialists"]))
+                bits.append(" -> ".join(f"`{s}`" for s in m["specialists"]))
             bits.append(f"{m['seconds']:.1f}s")
             if m.get("tokens"):
                 bits.append(f"{m['tokens']:,} tokens")
-            st.caption(" · ".join(bits))
+            st.caption(" | ".join(bits))
 
 prompt = st.session_state.pop("pending", None) or st.chat_input(
-    "Ask about policies, sales, or orders…"
+    "Ask about policies, sales, or orders..."
 )
 
 if prompt:
@@ -134,15 +133,12 @@ if prompt:
     st.session_state.history.append({"role": "user", "content": prompt})
 
     with st.chat_message("assistant"):
-        with st.spinner("Routing to specialists…"):
+        with st.spinner("Routing to specialists..."):
             t0 = time.time()
             try:
-                # previous_response_id must be OMITTED on the first turn - the API
-                # rejects an explicit null.
-                kwargs = {"model": AGENT_NAME, "input": prompt}
+                kwargs = {"input": prompt}
                 if st.session_state.prev_id:
                     kwargs["previous_response_id"] = st.session_state.prev_id
-
                 resp = get_client().responses.create(**kwargs)
                 st.session_state.prev_id = resp.id
                 text = resp.output_text or "_(no text returned)_"
@@ -157,11 +153,11 @@ if prompt:
         st.markdown(text)
         bits = []
         if used:
-            bits.append(" → ".join(f"`{s}`" for s in used))
+            bits.append(" -> ".join(f"`{s}`" for s in used))
         bits.append(f"{secs:.1f}s")
         if tokens:
             bits.append(f"{tokens:,} tokens")
-        st.caption(" · ".join(bits))
+        st.caption(" | ".join(bits))
 
     st.session_state.history.append({
         "role": "assistant",
