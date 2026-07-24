@@ -42,6 +42,9 @@ def get_client():
 
     NOT the model-inference endpoint: AIProjectClient.get_openai_client() resolves
     model deployments, so passing an agent name there returns DeploymentNotFound.
+
+    The token is fetched once and cached for the app's lifetime (~1h validity).
+    Restart the app if a long session starts returning auth errors.
     """
     token = DefaultAzureCredential().get_token("https://ai.azure.com/.default").token
     base = os.environ["FOUNDRY_PROJECT_ENDPOINT"].rstrip("/")
@@ -66,6 +69,19 @@ def specialists_used(response) -> list[str]:
                 if label not in found:
                     found.append(label)
     return found
+
+
+def extract_text(resp) -> str:
+    """Pull assistant text out of the response, falling back to output content blocks."""
+    if resp.output_text:
+        return resp.output_text
+    parts = []
+    for item in getattr(resp, "output", []) or []:
+        for c in (getattr(item, "content", None) or []):
+            t = getattr(c, "text", None)
+            if t:
+                parts.append(t)
+    return "\n".join(parts)
 
 
 with st.sidebar:
@@ -139,15 +155,30 @@ if prompt:
                 kwargs = {"input": prompt}
                 if st.session_state.prev_id:
                     kwargs["previous_response_id"] = st.session_state.prev_id
+
                 resp = get_client().responses.create(**kwargs)
-                st.session_state.prev_id = resp.id
-                text = resp.output_text or "_(no text returned)_"
+                text = extract_text(resp)
+
+                # Only chain from responses that actually produced content. Chaining from an
+                # empty/failed response poisons every subsequent turn - the API then returns
+                # an empty result in under a second, which looks like an auth failure but
+                # is not. Clearing prev_id here makes the session self-heal.
+                if text:
+                    st.session_state.prev_id = resp.id
+                else:
+                    st.session_state.prev_id = None
+                    text = (
+                        "_(The agent returned an empty response. The conversation chain has "
+                        "been reset - please send your message again.)_"
+                    )
+
                 used = specialists_used(resp)
                 usage = getattr(resp, "usage", None)
                 tokens = getattr(usage, "total_tokens", 0) if usage else 0
             except Exception as e:
                 text = f"**Error:** {e}"
                 used, tokens = [], 0
+                st.session_state.prev_id = None   # don't chain from a failed turn either
             secs = time.time() - t0
 
         st.markdown(text)
