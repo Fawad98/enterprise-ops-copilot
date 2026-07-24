@@ -34,7 +34,7 @@ jobs:
         run: ruff check src evals mcp_server scripts
 
       - name: Unit tests
-        run: pytest tests/ -q
+        run: PYTHONPATH=. pytest tests/ -q
         continue-on-error: true   # no unit tests yet; remove once tests/ is populated
 
   eval-gate:
