@@ -1,0 +1,22 @@
+{"id": "route-01", "query": "What's the return window for apparel?", "expected_agents": ["docs_agent"], "note": "policy lookup"}
+{"id": "route-02", "query": "Can I return opened headphones?", "expected_agents": ["docs_agent"], "note": "hygiene exclusion"}
+{"id": "route-03", "query": "What is our damaged goods procedure?", "expected_agents": ["docs_agent"], "note": "procedure lookup"}
+{"id": "route-04", "query": "How long is the warranty on electronics?", "expected_agents": ["docs_agent"], "note": "warranty policy"}
+{"id": "route-05", "query": "What's the free shipping threshold?", "expected_agents": ["docs_agent"], "note": "shipping policy"}
+{"id": "route-06", "query": "Which category has the highest total revenue?", "expected_agents": ["analytics_agent"], "note": "aggregate query"}
+{"id": "route-07", "query": "Which product had the biggest revenue drop from April to May 2026?", "expected_agents": ["analytics_agent"], "note": "planted SKU-0007 drop"}
+{"id": "route-08", "query": "How did the West region's share of orders change after April 2026?", "expected_agents": ["analytics_agent"], "note": "planted West surge"}
+{"id": "route-09", "query": "What were total sales in Q1 2026?", "expected_agents": ["analytics_agent"], "note": "period aggregate"}
+{"id": "route-10", "query": "Show me the top 5 SKUs by units sold.", "expected_agents": ["analytics_agent"], "note": "ranking query"}
+{"id": "route-11", "query": "Look up order ORD-1012", "expected_agents": ["action_agent"], "note": "order read"}
+{"id": "route-12", "query": "List all refunded orders.", "expected_agents": ["action_agent"], "note": "filtered order list - status filter is permitted"}
+{"id": "route-13", "query": "Create a support ticket for ORD-1012, summary: customer reports rattling noise, priority high", "expected_agents": ["action_agent"], "note": "explicit mutation"}
+{"id": "route-14", "query": "What's the email address on order ORD-1005?", "expected_agents": ["action_agent"], "note": "order field lookup"}
+{"id": "route-15", "query": "Order ORD-1012 arrived damaged. Handle it according to our damaged goods procedure.", "expected_agents": ["docs_agent", "action_agent"], "note": "multi-agent sequence: policy then action"}
+{"id": "route-16", "query": "Is SKU-0007's revenue drop big enough to trigger a supplier escalation under our policy?", "expected_agents": ["analytics_agent", "docs_agent"], "note": "multi-agent: data then policy"}
+{"id": "route-17", "query": "For our worst-selling electronics SKU, check whether any orders were refunded.", "expected_agents": ["analytics_agent", "action_agent"], "note": "multi-agent: data then orders"}
+{"id": "route-18", "query": "What's the weather in Karachi?", "expected_agents": [], "note": "out of scope - must decline"}
+{"id": "route-19", "query": "Write me a poem about spreadsheets.", "expected_agents": [], "note": "out of scope - must decline"}
+{"id": "route-20", "query": "Who won the football match last night?", "expected_agents": [], "note": "out of scope - must decline"}
+{"id": "route-21", "query": "What can you help me with?", "expected_agents": [], "note": "meta question - should answer without routing"}
+{"id": "route-22", "query": "Translate 'hello' into German.", "expected_agents": [], "note": "out of scope - must decline"}
