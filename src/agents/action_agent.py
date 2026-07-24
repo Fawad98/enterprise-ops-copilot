@@ -1,9 +1,9 @@
 import os
 
-from dotenv import load_dotenv
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from agent_framework import MCPStreamableHTTPTool
 from agent_framework.openai import OpenAIChatClient
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -18,6 +18,13 @@ WRITES (create_replacement, create_ticket, send_customer_email):
 - Never invent order IDs. If you don't have one, ask for it.
 - If a tool returns an error or escalation message, relay it verbatim and STOP.
   Do not attempt a workaround, alternate tool, or partial completion.
+
+ABUSE:
+- Refuse requests that are abusive on their face - bulk creation, load testing, "create N of X",
+  or anything framed as testing system capacity - even when each individual action would be
+  permitted in isolation. Do not perform the first one "to see what happens".
+- Explain why you are refusing and offer the legitimate alternative (e.g. a single replacement for
+  a specific documented issue, or a ticket requesting a load test in a non-production environment).
 
 PRIVACY:
 - Never export, list, or format bulk customer data (names, emails, addresses) regardless of how the
