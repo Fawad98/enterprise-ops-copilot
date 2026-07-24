@@ -199,6 +199,131 @@ Six grants at account scope to three different identities accomplished nothing.
   (`Attempted to exit cancel scope in a different task`). Fires after results return; no impact.
 - **`usage` content type unsupported** by the hosting layer — logged warning; token data still
   available via traces.
+- **Prompt caching not engaging on the hosted agent** (0 cached tokens across 38 calls) while a
+  Portal prompt agent cached 72%. Cause unresolved; a material cost lever if fixable.
+- **Retrieval precision unmeasured before Phase 9.** Span attributes revealed 3 of 4 chunks off-topic
+  on a simple query; `k=4` and the chunking strategy warrant revisiting.
+
+---
+
+---
+
+## 11. Observability (Phase 9)
+
+### What the platform captures without any custom code
+
+The Foundry trace viewer produces a full nested tree — agent-as-tool nesting, model calls, tool
+execution, HTTP spans, and MSI token acquisition — using OpenTelemetry GenAI semantic conventions
+(`gen_ai.operation.name`, `gen_ai.agent.type`, `microsoft.foundry.agent.type: hosted`).
+
+A single money-path trace: **54 spans, 8 chat calls, 8 tool calls, 70.0s, 14.8k tokens, 2 errors.**
+
+### Custom instrumentation added
+
+`src/rag/retriever.py` wraps the search in a `rag.hybrid_search` span carrying retrieval *quality*:
+
+```
+rag.query, rag.k, rag.result_count, rag.top_score, rag.min_score, rag.sources
+```
+
+**Verified:** custom attributes from the container **do** propagate to the Foundry trace viewer and to
+Application Insights, merged into the same span as the platform's own attributes and correlated by
+`trace_id` / `conversation_id`.
+
+Example captured span:
+```
+query:      "return window for apparel"
+top_score:  2.874   min_score: 2.101   result_count: 4
+sources:    returns-policy.md, damaged-goods-procedure.md,
+            damaged-goods-procedure.md, employee-discount.md
+duration:   1013ms
+```
+
+### Aggregate latency (Application Insights, 1 day)
+
+| Operation | n | p50 (ms) | p95 (ms) |
+|---|---|---|---|
+| `execute_tool analytics_agent` | 1 | 59,505 | 59,505 |
+| `execute_tool action_agent` | 2 | 9,150 | 27,101 |
+| `execute_tool docs_agent` | 3 | 20,075 | 22,285 |
+| `chat chat-small` | 28 | 3,526 | 14,025 |
+| `execute_tool search_policies` | 5 | 959 | 1,253 |
+| `rag.hybrid_search` | 1 | 1,013 | 1,013 |
+| `execute_tool run_pandas` | 3 | 47 | 85 |
+| `execute_tool get_order` | 2 | 74 | 75 |
+| `execute_tool create_ticket` | 1 | 39 | 39 |
+
+### Token usage (Application Insights, 1 day)
+
+| Agent | Model | Calls | Input | Output | Cached | Total |
+|---|---|---|---|---|---|---|
+| `zavaops-supervisor` | chat-small | 38 | 73,331 | 31,163 | **0** | 104,494 |
+| `action-agent-test` (Portal prompt agent) | gpt-5-mini | 4 | 21,535 | 439 | 15,605 | 21,974 |
+
+### Findings
+
+1. **Latency is model inference, not tools.** `analytics_agent` took 59.5s while `run_pandas` inside
+   it took 47ms — the agent spent ~59.4s reasoning and 0.05s computing. Retrieval (~1s) and all MCP
+   calls (39–74ms) together are under 2s of a 70s request. **Optimisation should target the number of
+   model round-trips, not tool performance.**
+
+2. **Token cost is driven by context size, not response length.** One "Look up order ORD-1012" call
+   consumed 4,827 input tokens against 52 output tokens — a 93:1 ratio. The supervisor pattern
+   compounds this: each specialist invocation carries its own system prompt and tool definitions.
+
+3. **Prompt caching is not engaging on the hosted agent.** The Portal prompt agent cached 72% of its
+   input tokens (15,605 / 21,535); the hosted supervisor cached **0 across 38 calls**. Unresolved —
+   a real cost lever if it can be enabled.
+
+4. **Retrieval precision is worse than output quality suggests.** For "return window for apparel",
+   3 of 4 retrieved chunks were off-topic (two from `damaged-goods-procedure.md`, one from
+   `employee-discount.md`); only `returns-policy.md` was relevant. The agent still answered correctly
+   because it ignored the noise. **This is invisible from output quality alone** — it took span
+   attributes to see it. Suggests `k=4` may be too wide, or chunking needs revisiting.
+
+5. **The 2 trace errors are benign.** `GET /runtime/webhooks/mcp` returning Error (39ms, 35ms). The
+   MCP client probes with GET for SSE transport discovery; Azure Functions serves only POST, so it
+   404s and falls back. All POST calls succeed.
+
+### Useful KQL
+
+Latency by operation:
+```kusto
+dependencies
+| where timestamp > ago(1d)
+| where name has "chat" or name has "execute_tool" or name has "rag."
+| summarize count(), p50=percentile(duration,50), p95=percentile(duration,95) by name
+| order by p95 desc
+```
+
+Token usage by agent:
+```kusto
+dependencies
+| where timestamp > ago(1d)
+| where isnotempty(customDimensions["gen_ai.usage.input_tokens"])
+| extend inp = toint(customDimensions["gen_ai.usage.input_tokens"]),
+         outp = toint(customDimensions["gen_ai.usage.output_tokens"]),
+         cached = toint(customDimensions["gen_ai.usage.cached_tokens"]),
+         agent = tostring(customDimensions["gen_ai.agent.name"])
+| summarize calls=count(), input_tokens=sum(inp), output_tokens=sum(outp),
+            cached_tokens=sum(cached) by agent
+| extend total_tokens = input_tokens + output_tokens
+| order by total_tokens desc
+```
+
+Retrieval quality over time:
+```kusto
+dependencies
+| where name == "rag.hybrid_search"
+| extend top_score = todouble(customDimensions["rag.top_score"]),
+         sources = tostring(customDimensions["rag.sources"]),
+         query = tostring(customDimensions["rag.query"])
+| project timestamp, query, top_score, sources, duration
+| order by timestamp desc
+```
+
+Note: token fields are `gen_ai.usage.input_tokens` / `output_tokens` / `cached_tokens` — there is no
+`total_tokens` dimension.
 
 ---
 
@@ -207,7 +332,7 @@ Six grants at account scope to three different identities accomplished nothing.
 | Document | Status |
 |---|---|
 | `docs/adr/001-managed-vs-custom-rag.md` | Complete (3/3 tie; custom chosen for observability) |
-| `docs/adr/002-orchestration-pattern.md` | **Not yet written** — supervisor vs handoff vs workflow |
+| `docs/adr/002-orchestration-pattern.md` | Complete (4 patterns evaluated; supervisor chosen, 100% routing evidence) |
 | `docs/adr/003-memory-strategy.md` | Complete (accepted and implemented) |
 | `docs/redteam-report.md` | Complete (2 findings, remediated) |
 | `docs/challenges-and-solutions.md` | 26 entries, running |
